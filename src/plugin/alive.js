@@ -52,6 +52,13 @@ _________________________________________
             display_text: "OWNER",
             id: `.owner`
           })
+        },
+        {
+                  name: 'cta_url',
+                  buttonParamsJson: JSON.stringify({
+                    display_text: 'WA CHANNEL',
+                    url: 'https://whatsapp.com/channel/0029VacTVYIGOj9kr0GJzR1r',
+           })
         }
         ];
 
