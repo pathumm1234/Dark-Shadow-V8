@@ -1,7 +1,7 @@
 import pkg, { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 
-const alive = async pushname, (m, Matrix) => {
+const alive = async (m, Matrix) => {
   const uptimeSeconds = process.uptime();
   const days = Math.floor(uptimeSeconds / (24 * 3600));
   const hours = Math.floor((uptimeSeconds % (24 * 3600)) / 3600);
@@ -13,9 +13,18 @@ const alive = async pushname, (m, Matrix) => {
   const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).toLowerCase() : '';
     if (['alive', 'uptime', 'runtime'].includes(cmd)) {
 
-  const uptimeMessage = `*DARK-SHADOW-MD Status Overview*
+  const uptimeMessage = `*Hellow I am Alive now👋*
 _________________________________________
-*Hellow ${pushname} I am Alive Now👋*
+Hey, I'm DARK-SHADOW-MD , created by Pathum Malsara✨🍂
+
+I'm always here for help you. 😇 Love you forever ♥️
+
+Learn about how to create your own whatsapp bot? Follow below channel
+
+*JOIN SUPPORT CHANNEL* : https://whatsapp.com/channel/0029VacTVYIGOj9kr0GJzR1r
+
+© D A R K - S H A D O W
+_________________________________________
 *📆 ${days} Day*
 *🕰️ ${hours} Hour*
 *⏳ ${minutes} Minute*
