@@ -60,7 +60,6 @@
     "uuid": "^9.0.1",
     "wasitech": "npm:@distube/ytdl-core",
     "yt-search": "^2.11.1",
-    "ytdl-core": "^4.11.5
-"
+    "ytdl-core": "^4.11.5"
   }
 }
