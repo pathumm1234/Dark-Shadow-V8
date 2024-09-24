@@ -20,7 +20,7 @@ I'm always here for help you. 😇 Love you forever ♥️
 
 Learn about how to create your own whatsapp bot? Follow below channel
 
-*JOIN SUPPORT CHANNEL* : https://whatsapp.com/channel/0029VacTVYIGOj9kr0GJzR1r
+This is Your Log Number and This Message is Come After Successfully Connect Bot🎉
 
 © D A R K - S H A D O W
 _________________________________________
@@ -59,6 +59,13 @@ _________________________________________
                     display_text: 'WA CHANNEL',
                     url: 'https://whatsapp.com/channel/0029VacTVYIGOj9kr0GJzR1r',
            })
+        },
+        {
+                  name: 'cta_url',
+                  buttonParamsJson: JSON.stringify({
+                    display_text: 'YT CHANNEL',
+                    url: 'https://youtube.com/@dark_shadow-bot?si=63aH4ud-TXRmyQy5',
+           }),
         }
         ];
 
