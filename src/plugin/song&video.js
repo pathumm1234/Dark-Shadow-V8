@@ -1,92 +1,107 @@
-const {cmd , commands} = require('../command')
-const fg = require('api-dylux')
-const yts = require('yt-search')
 
-cmd({
-    pattern: "song",
-    desc: "download songs",
-    category: "download",
-    react: "🎵",
-    filename: __filename
-},
-async(conn, mek, m,{from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
-try{
-if(!q) return reply("*කරුණාකර Link එකක් හො නමක් ලබා දෙන්න 🔎...*")
-const search = await yts(q)
-const data = search.videos[0]
-const url = data.url
 
-let desc = `*🎶 DARK-SHADOW-MD SONG DOWNLOADING 🎶*
+import ytdl from '@distube/ytdl-core';
+import yts from 'yt-search';
 
-| ➤ TITLE - ${data.title}
+const song = async (m, Matrix) => {
+  const prefixMatch = m.body.match(/^[\\/!#.]/);
+  const prefix = prefixMatch ? prefixMatch[0] : '/';
+  const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
+  const text = m.body.slice(prefix.length + cmd.length).trim();
 
-| ➤ VIEWS - ${data.views}
+  const validCommands = ['play', 'ytmp3', 'music', 'ytmp3doc'];
 
-| ➤ DESCRIPTION - ${data.description}
+  if (validCommands.includes(cmd)) {
+    if (!text) return m.reply('Please provide a YT URL or search query.');
 
-| ➤ TIME - ${data.timestamp}
+    try {
+      await m.React("🎶");
 
-|➤ AGO - ${data.ago}
+      const isUrl = ytdl.validateURL(text);
 
- ©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴅᴀʀᴋ-sʜᴀᴅᴏᴡ-ᴍᴅ
-`
-await conn.sendMessage(from,{image:{url: data.thumbnail},caption:desc},{quoted:mek});
+      const sendAudioMessage = async (videoInfo, finalAudioBuffer) => {
 
-//download audio
+        if (cmd === 'ytmp3doc') {
+          const docMessage = {
+            document: finalAudioBuffer,
+            mimetype: 'audio/mpeg',
+            fileName: `${videoInfo.title}.mp3`,
+            contextInfo: {
+              mentionedJid: [m.sender],
+              externalAdReply: {
+                title: "↺ |◁   II   ▷|   ♡",
+                body: `Now playing: ${videoInfo.title}`,
+                thumbnailUrl: videoInfo.thumbnail,
+                sourceUrl: videoInfo.url,
+                mediaType: 1,
+                renderLargerThumbnail: false,
+              },
+            },
+          };
+          await Matrix.sendMessage(m.from, docMessage, { quoted: m });
+        } else {
+          const audioMessage = {
+            audio: finalAudioBuffer,
+            mimetype: 'audio/mpeg',
+            contextInfo: {
+              mentionedJid: [m.sender],
+              externalAdReply: {
+                title: "↺ |◁   II   ▷|   ♡",
+                body: `Now playing: ${videoInfo.title}`,
+                thumbnailUrl: videoInfo.thumbnail,
+                sourceUrl: videoInfo.url,
+                mediaType: 1,
+                renderLargerThumbnail: false,
+              },
+            },
+          };
+          await Matrix.sendMessage(m.from, audioMessage, { quoted: m });
+        }
 
-let down = await fg.yta(url)  
-let downloadUrl = down.dl_url
+        await m.React("✅");
+      };
 
-//send audio
-await conn.sendMessage(from,{audio:{url: downloadUrl},mimetype:"audio/mpeg"},{quoted:mek})
-await conn.sendMessage(from,{document:{url: downloadUrl},mimetype:"audio/mpeg",fileName:data.title + "mp3",caption:"©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴅᴀʀᴋ-sʜᴀᴅᴏᴡ-ᴍᴅ"},{quoted:mek})
-}catch(e){
-reply(`${e}`)
-}
-})
+      if (isUrl) {
+        const audioStream = ytdl(text, { filter: 'audioonly', quality: 'highestaudio' });
+        const audioBuffer = [];
 
-//===========video-dl===========
+        audioStream.on('data', (chunk) => {
+          audioBuffer.push(chunk);
+        });
 
-cmd({
-    pattern: "video",
-    desc: "download video",
-    category: "download",
-    react: "🎥",
-    filename: __filename
-},
-async(conn, mek, m,{from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
-try{
-if(!q) return reply("*කරුණාකර Link එකක් හො නමක් ලබා දෙන්න 🔎...*")
-const search = await yts(q)
-const data = search.videos[0]
-const url = data.url
+        audioStream.on('end', async () => {
+          const finalAudioBuffer = Buffer.concat(audioBuffer);
+          const videoInfo = await yts({ videoId: ytdl.getURLVideoID(text) });
+          await sendAudioMessage(videoInfo, finalAudioBuffer);
+        });
+      } else {
+        const searchResult = await yts(text);
+        const firstVideo = searchResult.videos[0];
 
-let des = `*🎥DARK-SHADOW-MD VIDEO DOWNLOADING🎥*
+        if (!firstVideo) {
+          m.reply('Audio not found.');
+          await m.React("❌");
+          return;
+        }
 
-| ➤ TITLE - ${data.title}
+        const audioStream = ytdl(firstVideo.url, { filter: 'audioonly', quality: 'highestaudio' });
+        const audioBuffer = [];
 
-| ➤ VIEWS - ${data.views}
+        audioStream.on('data', (chunk) => {
+          audioBuffer.push(chunk);
+        });
 
-| ➤ DESCRIPTION - ${data.description}
+        audioStream.on('end', async () => {
+          const finalAudioBuffer = Buffer.concat(audioBuffer);
+          await sendAudioMessage(firstVideo, finalAudioBuffer);
+        });
+      }
+    } catch (error) {
+      console.error("Error generating response:", error);
+      m.reply('Error processing your request.');
+      await m.React("❌");
+    }
+  }
+};
 
-| ➤ TIME - ${data.timestamp}
-
-| ➤ AGO - ${data.ago}
-
-©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴅᴀʀᴋ-sʜᴀᴅᴏᴡ-ᴍᴅ
-`
-await conn.sendMessage(from,{image:{url: data.thumbnail},caption:des},{quoted:mek});
-
-//download video
-
-let down = await fg.ytv(url)  
-let downloadUrl = down.dl_url
-
-//send video
-await conn.sendMessage(from,{video:{url: downloadUrl},mimetype:"video/mp4"},{quoted:mek})
-await conn.sendMessage(from,{document:{url: downloadUrl},mimetype:"video/mp4",fileName:data.title + "mp4",caption:"©ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴅᴀʀᴋ-sʜᴀᴅᴏᴡ-ᴍᴅ"},{quoted:mek})
-    
-}catch(a){
-reply(`${a}`)
-}
-})
+export default song;
