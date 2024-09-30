@@ -63,6 +63,13 @@ _________________________________________
         {
                   name: 'cta_url',
                   buttonParamsJson: JSON.stringify({
+                    display_text: 'Click Here To Fork',
+                    url: 'https://github.com/dark-shadow-LK/Dark-Shadow-V1/fork',
+           })
+        },
+        {
+                  name: 'cta_url',
+                  buttonParamsJson: JSON.stringify({
                     display_text: 'YT CHANNEL',
                     url: 'https://youtube.com/@dark_shadow-bot?si=63aH4ud-TXRmyQy5',
            }),
