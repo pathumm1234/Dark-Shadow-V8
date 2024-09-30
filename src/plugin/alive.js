@@ -47,10 +47,10 @@ _________________________________________
           })
         },
         {
-          "name": "quick_reply",
+          "name": "cta_url",
           "buttonParamsJson": JSON.stringify({
             display_text: "OWNER",
-            id: `.owner`
+            url: `https://wa.me/+94773416478?text=HI_Dark_Shadow_Owner👨‍💻`
           })
         },
         {
